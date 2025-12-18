@@ -1,7 +1,7 @@
 # Define the Room class.
 
 class Room:
-"""
+    """
     Représente une pièce du jeu d’aventure.
 
     Une Room correspond à un lieu dans lequel le joueur peut se trouver.
