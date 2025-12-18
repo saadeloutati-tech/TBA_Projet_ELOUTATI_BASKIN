@@ -1,3 +1,4 @@
+ACTIONS
 # Description: The actions module.
 
 # The actions module contains the functions that are called when a command is executed.
@@ -47,17 +48,39 @@ class Actions:
         
         player = game.player
         l = len(list_of_words)
-        # If the number of parameters is incorrect, print an error message and return False.
+
         if l != number_of_parameters + 1:
             command_word = list_of_words[0]
             print(MSG1.format(command_word=command_word))
             return False
 
-        # Get the direction from the list of words.
-        direction = list_of_words[1]
-        # Move the player in the direction specified by the parameter.
+        direction_input = list_of_words[1]
+
+        # --- normalisation ---
+        DIRECTIONS = {
+            "N": "N", "NORD": "N", "Nord": "N", "nord": "N", "n": "N",
+            "S": "S", "SUD": "S", "Sud": "S", "sud": "S", "s": "S",
+            "E": "E", "EST": "E", "Est": "E", "est": "E", "e": "E",
+            "O": "O", "OUEST": "O", "Ouest": "O", "ouest": "O", "o": "O",
+            "U": "U", "UP": "U", "Up": "U", "up": "U", "u": "U",
+            "D": "D", "DOWN": "D", "Down": "D", "down": "D", "d": "D",
+        }
+
+        # --- direction invalide ---
+        if direction_input not in DIRECTIONS:
+            print(f"\nDirection '{direction_input}' non reconnue.\n")
+            # 👉 on réaffiche la salle actuelle
+            print(player.current_room.get_long_description())
+            return False
+
+        direction = DIRECTIONS[direction_input]
+
         player.move(direction)
         return True
+
+
+
+
 
     def quit(game, list_of_words, number_of_parameters):
         """

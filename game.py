@@ -29,56 +29,74 @@ class Game:
         self.commands["go"] = go
         
         # Setup rooms
-        forest = Room(
-            "Forest",
-            "une forêt enchantée. Vous entendez une brise légère à travers la cime des arbres."
+        eridani = Room(
+            "Eridani Prime",
+            "un district pauvre où des fumées noires s’élèvent au-dessus des toits. "
+            "Des affiches de propagande couvrent les murs. "
+            "Les habitants avancent avec un mélange de peur et de résignation."
         )
 
-        tower = Room(
-            "Tower",
-            "une immense tour en pierre qui s'élève au dessus des nuages."
+        avant_poste = Room(
+            "Avant-poste minier",
+            "un enchevêtrement d’échafaudages branlants, de gardes épuisés et de mineurs au regard vide. "
+            "L’air est lourd de poussière et d’électricité."
         )
 
-        cave = Room(
-            "Cave",
-            "une grotte profonde et sombre. Des voix semblent provenir des profondeurs."
+        marche = Room(
+            "Marché labyrinthique",
+            "un dédale d’allées étroites, d’échoppes sombres et de murmures étouffés. "
+            "Les hommes de main de Vorn rôdent à chaque coin d’ombre."
         )
 
-        cottage = Room(
-            "Cottage",
-            "un petit chalet pittoresque avec un toit de chaume. Une épaisse fumée verte sort de la cheminée."
+        forteresse = Room(
+            "Cité-forteresse",
+            "des tours massives balayées par des projecteurs écarlates. "
+            "Des soldats patrouillent sans relâche : c’est ici que le capitaine Vorn impose son règne."
         )
 
-        swamp = Room(
-            "Swamp",
-            "un marécage sombre et ténébreux. L'eau bouillonne, les abords sont vaseux."
+
+        base = Room(
+            "Base rebelle de Velyra",
+            "un bunker dissimulé sous les ruines d’un ancien quartier industriel. "
+            "Des écrans grésillent, affichant les patrouilles de drones du gouverneur Karn."
         )
 
-        castle = Room(
-            "Castle",
-            "un énorme château fort avec des douves et un pont levis. Sur les tours, des flèches en or massif."
+        quartier = Room(
+            "Quartier civil",
+            "des immeubles serrés sous des néons blafards. "
+            "Les habitants marchent tête baissée sous l’œil constant des caméras."
         )
 
-        self.rooms.append(forest)
-        self.rooms.append(tower)
-        self.rooms.append(cave)
-        self.rooms.append(cottage)
-        self.rooms.append(swamp)
-        self.rooms.append(castle)
+        entrepots = Room(
+            "Entrepôts civils",
+            "de vastes hangars contenant les réserves d’énergie et de nourriture. "
+            "Des gardes mécaniques veillent sans relâche."
+        )
+
+        prison = Room(
+            "Prison centrale",
+            "une forteresse de métal noir hérissée de tourelles automatiques. "
+            "C’est ici que sont enfermés Narek et les chefs rebelles."
+        )
+
+ 
+
 
         # Create exits for rooms
+        eridani.exits = {"E": avant_poste, "O": None, "U": None, "D": base}
+        avant_poste.exits = {"E": marche, "O": eridani, "U": None, "D": None}
+        marche.exits = {"E": forteresse, "O": avant_poste, "U": None, "D": entrepots}
+        forteresse.exits = {"E": None, "O": marche, "U": None, "D": prison}
+        base.exits = {"E": quartier, "O": None, "U": eridani, "D": None}
+        quartier.exits = {"E": entrepots, "O": base, "U": None, "D": None}
+        entrepots.exits = {"E": prison, "O": quartier, "U": marche, "D": None}
+        prison.exits = {"E": None, "O": entrepots, "U": forteresse, "D": None}
 
-        forest.exits = {"N" : cave, "E" : None, "S" : castle, "O" : None}
-        tower.exits = {"N" : cottage, "E" :  None,"S": None, "O" : None}
-        cave.exits = {"N" : None, "E" : cottage, "S" : forest, "O" : None}
-        cottage.exits = {"N" : None, "E" : None, "S" : tower, "O" : cave}
-        swamp.exits = {"N" : tower, "E" : None, "S" : None, "O" : castle}
-        castle.exits = {"N" : forest, "E" : swamp, "S" : None, "O" : None}
 
         # Setup player and starting room
 
         self.player = Player(input("\nEntrez votre nom: "))
-        self.player.current_room = swamp
+        self.player.current_room = eridani
 
     # Play the game
     def play(self):
