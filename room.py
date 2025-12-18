@@ -1,5 +1,3 @@
-# Define the Room class.
-
 class Room:
     """
     Représente une pièce du jeu d’aventure.
@@ -42,6 +40,27 @@ class Room:
         self.name = name
         self.description = description
         self.exits = {}
+        self.inventory = []
+
+
+
+    def look(self):
+        res = self.get_long_description()
+        res += "\n" + self.get_inventory() + "\n"
+        return res
+
+
+
+    def get_inventory(self):
+        if not self.inventory:
+            return "Il n'y a rien ici."
+
+        res = "La pièce contient :\n"
+        for item in self.inventory:
+            res += f"    - {item}\n"
+        return res
+
+
     
     # Define the get_exit method.
     def get_exit(self, direction):

@@ -48,6 +48,8 @@ class Player():
         self.name = name
         self.current_room = None
         self.history = []
+        self.inventory = []
+
 
 
    
@@ -69,6 +71,44 @@ class Player():
         self.current_room = next_room
         print(self.current_room.get_long_description())
         return True
+
+
+    def get_inventory(self):
+        if not self.inventory:
+            return "\nVotre inventaire est vide.\n"
+
+        res = "\nVous disposez des items suivants :\n"
+        for item in self.inventory:
+            res += f"    - {item}\n"
+        return res
+
+
+
+    def take(self, item_name):
+        room = self.current_room
+
+        for item in room.inventory:
+            if item.name.lower() == item_name.lower():
+                self.inventory.append(item)
+                room.inventory.remove(item)
+                return f"\nVous avez pris : {item}\n"
+
+        return "\nCet item n’est pas présent ici.\n"
+
+
+    def drop(self, item_name):
+        for item in self.inventory:
+            if item.name.lower() == item_name.lower():
+                self.inventory.remove(item)
+                self.current_room.inventory.append(item)
+                return f"\nVous avez déposé : {item}\n"
+
+        return "\nVous ne possédez pas cet item.\n"
+
+
+    def check(self):
+        return self.get_inventory()
+
 
 
 
@@ -101,10 +141,3 @@ class Player():
 
 
         return res
-
-
-
-
-
-
-   

@@ -8,6 +8,8 @@ from room import Room
 from player import Player
 from command import Command
 from actions import Actions
+from item import Item
+
 
 
 class Game:
@@ -37,6 +39,15 @@ class Game:
         self.commands["history"] = history
         back = Command("back"," : revenir à la pièce précédente", Actions.back,0)
         self.commands["back"] = back
+        look = Command("look", " : observer la pièce", Actions.look, 0)
+        self.commands["look"] = look
+        take = Command("take", " <item> : prendre un item", Actions.take, 1)
+        self.commands["take"] = take
+        drop = Command("drop", " <item> : déposer un item", Actions.drop, 1)
+        self.commands["drop"] = drop
+        check = Command("check", " : vérifier l’inventaire", Actions.check, 0)
+        self.commands["check"] = check
+
 
 
        
@@ -70,8 +81,6 @@ class Game:
         )
 
 
-
-
         base = Room(
             "Base rebelle de Velyra",
             "un bunker dissimulé sous les ruines d’un ancien quartier industriel. "
@@ -100,11 +109,6 @@ class Game:
         )
 
 
- 
-
-
-
-
         # Create exits for rooms
         eridani.exits = {"E": avant_poste, "O": None, "U": None, "D": base}
         avant_poste.exits = {"E": marche, "O": eridani, "U": None, "D": None}
@@ -117,10 +121,18 @@ class Game:
 
 
 
+        battery = Item("Batterie énergétique usée", "Une batterie industrielle à moitié déchargée.", 2)
+        shiv = Item("Dague improvisée", "Une lame artisanale forgée à partir de ferraille.", 1)
+        keycard = Item("Carte d’accès rouillée", "Une vieille carte magnétique de sécurité.", 1)
+        transmitter = Item("Émetteur rebelle crypté", "Un appareil de communication utilisé par la résistance.", 1)
+        avant_poste.inventory.append(battery)
+        marche.inventory.append(shiv)
+        entrepots.inventory.append(keycard)
+        base.inventory.append(transmitter)
+
+
 
         # Setup player and starting room
-
-
         self.player = Player(input("\nEntrez votre nom: "))
         self.player.current_room = eridani
 
@@ -176,5 +188,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-
-

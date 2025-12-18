@@ -124,6 +124,57 @@ class Actions:
         return True
 
 
+    def look(game, list_of_words, number_of_parameters):
+        if len(list_of_words) != 1:
+            command_word = list_of_words[0]
+            print(MSG0.format(command_word=command_word))
+            return False
+
+        print(game.player.current_room.look())
+        return True
+
+    def take(game, list_of_words, number_of_parameters):
+
+        if len(list_of_words) < 2:
+            command_word = list_of_words[0]
+            print(MSG1.format(command_word=command_word))
+            return False
+
+        # 🔥 reconstruction du nom complet de l’item
+        item_name = " ".join(list_of_words[1:])
+
+        print(game.player.take(item_name))
+        return True
+
+
+    def drop(game, list_of_words, number_of_parameters):
+
+        if len(list_of_words) < 2:
+            command_word = list_of_words[0]
+            print(MSG1.format(command_word=command_word))
+            return False
+
+        # reconstruction du nom complet de l'item
+        item_name = " ".join(list_of_words[1:])
+
+        print(game.player.drop(item_name))
+        return True
+
+
+
+    def check(game, list_of_words, number_of_parameters):
+        if len(list_of_words) != 1:
+            command_word = list_of_words[0]
+            print(MSG0.format(command_word=command_word))
+            return False
+
+        print(game.player.check())
+        return True
+
+
+
+
+
     def history(game, list_of_words, number_of_parameters):
         if len(list_of_words) != 1:
             command_word = list_of_words[0]
