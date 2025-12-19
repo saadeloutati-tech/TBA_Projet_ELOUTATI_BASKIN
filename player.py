@@ -105,6 +105,14 @@ class Player():
 
         return "\nVous ne possédez pas cet item.\n"
 
+    def talk(self, name):
+        """Faire parler un personnage dans la pièce courante."""
+        for character in self.current_room.characters:
+            if character.name.lower() == name.lower():
+                return f"\n{character.name} dit : '{character.get_msg()}'\n"
+
+        return "\nIl n'y a personne avec ce nom ici.\n"
+
 
     def check(self):
         return self.get_inventory()

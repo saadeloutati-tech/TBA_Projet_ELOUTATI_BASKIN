@@ -9,6 +9,7 @@ from player import Player
 from command import Command
 from actions import Actions
 from item import Item
+from character import Character
 
 
 
@@ -27,8 +28,6 @@ class Game:
 
 
         # Setup commands
-
-
         help = Command("help", " : afficher cette aide", Actions.help, 0)
         self.commands["help"] = help
         quit = Command("quit", " : quitter le jeu", Actions.quit, 0)
@@ -47,6 +46,8 @@ class Game:
         self.commands["drop"] = drop
         check = Command("check", " : vérifier l’inventaire", Actions.check, 0)
         self.commands["check"] = check
+        talk = Command("talk", " : <nom> parler à un personnage dans la pièce", Actions.talk, 1)
+        self.commands["talk"] = talk
 
 
 
@@ -108,6 +109,17 @@ class Game:
             "C’est ici que sont enfermés Narek et les chefs rebelles."
         )
 
+        # Create list of rooms
+        self.rooms = [
+            eridani,
+            avant_poste,
+            marche,
+            forteresse,
+            base,
+            quartier,
+            entrepots,
+            prison
+        ]
 
         # Create exits for rooms
         eridani.exits = {"E": avant_poste, "O": None, "U": None, "D": base}
@@ -120,11 +132,82 @@ class Game:
         prison.exits = {"E": None, "O": entrepots, "U": forteresse, "D": None}
 
 
+        # Setup PNJ
+        ralen = Character(
+            "Ralen",
+            "Un citoyen au regard vif malgré les cendres sur son visage.",
+            eridani,
+            [
+                "Vous n’avez pas l’air d’ici.",
+                "Les mines à l’est cachent bien des choses.",
+            ]
+        )
 
+        malek = Character(
+            "Ingénieur Malek",
+            "Un technicien nerveux qui tente de réparer une foreuse brisée.",
+            avant_poste,
+            [
+                "Cette foreuse ne tiendra plus longtemps.",
+                "Sans matériel, tout va s’effondrer.",
+            ]
+        )
+
+        marchand = Character(
+            "Marchand",
+            "Un homme sec, aux yeux calculateurs, entouré de caisses verrouillées.",
+            marche,
+            [
+                "Tout a un prix.",
+                "Même la loyauté.",
+            ]
+        )
+
+        yara = Character(
+            "Yara",
+            "Une femme encapuchonnée, regard déterminé, symbole rebelle au poignet.",
+            marche,
+            [
+                "Ne fais confiance à personne.",
+                "La forteresse tombera.",
+            ]
+        )
+
+        nommera = Character(
+            "Nommera",
+            "Une jeune femme aux mains couvertes de poussière, le regard creux mais lucide.",
+            entrepots,
+            [
+                "Ils ont tout pris.",
+                "Il ne nous reste presque rien.",
+            ]
+        )
+
+        narek = Character(
+            "Narek",
+            "Un jeune rebelle amaigri mais déterminé.",
+            prison,
+            [
+                "Je ne pensais pas revoir la lumière.",
+                "Ne les laisse pas gagner.",
+            ]
+        )
+
+        eridani.characters.append(ralen)
+        avant_poste.characters.append(malek)
+        marche.characters.append(marchand)
+        marche.characters.append(yara)
+        entrepots.characters.append(nommera)
+        prison.characters.append(narek)
+
+
+
+        # Setup Items
         battery = Item("Batterie énergétique usée", "Une batterie industrielle à moitié déchargée.", 2)
         shiv = Item("Dague improvisée", "Une lame artisanale forgée à partir de ferraille.", 1)
         keycard = Item("Carte d’accès rouillée", "Une vieille carte magnétique de sécurité.", 1)
         transmitter = Item("Émetteur rebelle crypté", "Un appareil de communication utilisé par la résistance.", 1)
+
         avant_poste.inventory.append(battery)
         marche.inventory.append(shiv)
         entrepots.inventory.append(keycard)
@@ -145,6 +228,10 @@ class Game:
         while not self.finished:
             # Get the command from the player
             self.process_command(input("> "))
+            # Déplacement des PNJ après chaque tour
+            for room in self.rooms:
+                for character in list(room.characters):
+                    character.move()
         return None
 
 

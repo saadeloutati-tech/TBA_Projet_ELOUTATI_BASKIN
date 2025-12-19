@@ -41,19 +41,30 @@ class Room:
         self.description = description
         self.exits = {}
         self.inventory = []
+        self.characters = []
 
 
 
     def look(self):
         res = self.get_long_description()
         res += "\n" + self.get_inventory() + "\n"
+        res += "\n" + self.get_characters() + "\n"
         return res
 
+
+    def get_characters(self):
+        if not self.characters:
+            return "Il n'y a personne ici."
+
+        res = "Les personnages présents sont :\n"
+        for character in self.characters:
+            res += f"    - {character}\n"
+        return res
 
 
     def get_inventory(self):
         if not self.inventory:
-            return "Il n'y a rien ici."
+            return "Il n'y a aucun item ici."
 
         res = "La pièce contient :\n"
         for item in self.inventory:
