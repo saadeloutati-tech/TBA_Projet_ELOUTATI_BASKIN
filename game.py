@@ -1,6 +1,4 @@
 # Description: Game class
-
-
 # Import modules
 
 
@@ -10,6 +8,7 @@ from command import Command
 from actions import Actions
 from item import Item
 from character import Character
+from quest import Quest
 
 
 
@@ -19,40 +18,34 @@ class Game:
     # Constructor
     def __init__(self):
         self.finished = False
-        self.rooms = []
+        self.rooms = {}
         self.commands = {}
         self.player = None
    
-    # Setup the game
-    def setup(self):
+   # Setup player and starting room
+    def setup_player(self):
+        self.player = Player(input("\nEntrez votre nom: "))
+        self.player.current_room = self.rooms["Eridani Prime"]  # Start in the first room
+            
+    # Setup commands
+    def setup_commands(self):
+        self.commands["help"] = Command("help", " : afficher cette aide", Actions.help, 0)
+        self.commands["quit"] = Command("quit", " : quitter le jeu", Actions.quit, 0)
+        self.commands["go"] = Command("go", " <direction> : se déplacer dans une direction cardinale (N, E, S, O)", Actions.go, 1)
+        self.commands["history"] = Command("history"," : afficher l'historique des lieux visités",Actions.history,0)
+        self.commands["back"] = Command("back"," : revenir à la pièce précédente", Actions.back,0)
+        self.commands["look"] = Command("look", " : observer la pièce", Actions.look, 0)
+        self.commands["take"] = Command("take", " <item> : prendre un item", Actions.take, 1)
+        self.commands["drop"] = Command("drop", " <item> : déposer un item", Actions.drop, 1)
+        self.commands["check"] = Command("check", " : vérifier l’inventaire", Actions.check, 0)
+        self.commands["talk"] = Command("talk", " : <nom> parler à un personnage dans la pièce", Actions.talk, 1)
+        self.commands["quests"] = Command("quests", " : afficher la liste des quêtes", Actions.quests, 0)
+        self.commands["quest"] = Command("quest", " <titre> : afficher les détails d'une quête", Actions.quest, 1)
+        self.commands["activate"] = Command("activate" , " <titre> : activer une quête", Actions.activate, 1)
+        self.commands["rewards"] = Command("rewards", " afficher vos récompenses", Actions.rewards, 0)
 
-
-        # Setup commands
-        help = Command("help", " : afficher cette aide", Actions.help, 0)
-        self.commands["help"] = help
-        quit = Command("quit", " : quitter le jeu", Actions.quit, 0)
-        self.commands["quit"] = quit
-        go = Command("go", " <direction> : se déplacer dans une direction cardinale (N, E, S, O)", Actions.go, 1)
-        self.commands["go"] = go
-        history = Command("history"," : afficher l'historique des lieux visités",Actions.history,0)
-        self.commands["history"] = history
-        back = Command("back"," : revenir à la pièce précédente", Actions.back,0)
-        self.commands["back"] = back
-        look = Command("look", " : observer la pièce", Actions.look, 0)
-        self.commands["look"] = look
-        take = Command("take", " <item> : prendre un item", Actions.take, 1)
-        self.commands["take"] = take
-        drop = Command("drop", " <item> : déposer un item", Actions.drop, 1)
-        self.commands["drop"] = drop
-        check = Command("check", " : vérifier l’inventaire", Actions.check, 0)
-        self.commands["check"] = check
-        talk = Command("talk", " : <nom> parler à un personnage dans la pièce", Actions.talk, 1)
-        self.commands["talk"] = talk
-
-
-
-       
-        # Setup rooms
+    # Setup rooms
+    def setup_rooms(self):
         eridani = Room(
             "Eridani Prime",
             "un district pauvre où des fumées noires s’élèvent au-dessus des toits. "
@@ -110,33 +103,39 @@ class Game:
         )
 
         # Create list of rooms
-        self.rooms = [
-            eridani,
-            avant_poste,
-            marche,
-            forteresse,
-            base,
-            quartier,
-            entrepots,
-            prison
-        ]
+        self.rooms = {
+            "Eridani Prime": eridani,
+            "Avant-poste minier": avant_poste,
+            "Marché labyrinthique": marche,
+            "Cité-forteresse": forteresse,
+            "Base rebelle de Velyra": base,
+            "Quartier civil": quartier,
+            "Entrepôts civils": entrepots,
+            "Prison centrale": prison
+        }
 
         # Create exits for rooms
-        eridani.exits = {"E": avant_poste, "O": None, "U": None, "D": base}
-        avant_poste.exits = {"E": marche, "O": eridani, "U": None, "D": None}
-        marche.exits = {"E": forteresse, "O": avant_poste, "U": None, "D": entrepots}
-        forteresse.exits = {"E": None, "O": marche, "U": None, "D": prison}
-        base.exits = {"E": quartier, "O": None, "U": eridani, "D": None}
-        quartier.exits = {"E": entrepots, "O": base, "U": None, "D": None}
-        entrepots.exits = {"E": prison, "O": quartier, "U": marche, "D": None}
-        prison.exits = {"E": None, "O": entrepots, "U": forteresse, "D": None}
 
+        eridani.exits     = {"E": avant_poste, "O": None,         "U": None,        "D": base}
+        avant_poste.exits = {"E": marche,      "O": eridani,      "U": None,        "D": None}
+        marche.exits      = {"E": forteresse,  "O": avant_poste,  "U": None,        "D": entrepots}
+        forteresse.exits  = {"E": None,        "O": marche,       "U": None,        "D": None}
 
-        # Setup PNJ
+        base.exits        = {"E": quartier,    "O": None,         "U": eridani,     "D": None}
+        quartier.exits    = {"E": entrepots,   "O": base,         "U": None,        "D": None}
+        entrepots.exits   = {"E": prison,      "O": quartier,     "U": marche,     "D": None}
+        prison.exits      = {"E": None,        "O": None,         "U": None,        "D": None}
+
+                
+        
+        
+
+    # Setup PNJ
+    def setup_characters(self):
         ralen = Character(
             "Ralen",
             "Un citoyen au regard vif malgré les cendres sur son visage.",
-            eridani,
+            self.rooms["Eridani Prime"],
             [
                 "Vous n’avez pas l’air d’ici.",
                 "Les mines à l’est cachent bien des choses.",
@@ -146,7 +145,7 @@ class Game:
         malek = Character(
             "Ingénieur Malek",
             "Un technicien nerveux qui tente de réparer une foreuse brisée.",
-            avant_poste,
+            self.rooms["Avant-poste minier"],
             [
                 "Cette foreuse ne tiendra plus longtemps.",
                 "Sans matériel, tout va s’effondrer.",
@@ -156,7 +155,7 @@ class Game:
         marchand = Character(
             "Marchand",
             "Un homme sec, aux yeux calculateurs, entouré de caisses verrouillées.",
-            marche,
+            self.rooms["Marché labyrinthique"],
             [
                 "Tout a un prix.",
                 "Même la loyauté.",
@@ -166,74 +165,125 @@ class Game:
         yara = Character(
             "Yara",
             "Une femme encapuchonnée, regard déterminé, symbole rebelle au poignet.",
-            marche,
+            self.rooms["Marché labyrinthique"],
             [
                 "Ne fais confiance à personne.",
                 "La forteresse tombera.",
+                "Tu auras besoin d’une carte… mais fais attention."
             ]
         )
 
         nommera = Character(
             "Nommera",
             "Une jeune femme aux mains couvertes de poussière, le regard creux mais lucide.",
-            entrepots,
+            self.rooms["Entrepôts civils"],
             [
                 "Ils ont tout pris.",
                 "Il ne nous reste presque rien.",
             ]
         )
 
-        narek = Character(
-            "Narek",
-            "Un jeune rebelle amaigri mais déterminé.",
-            prison,
-            [
-                "Je ne pensais pas revoir la lumière.",
-                "Ne les laisse pas gagner.",
-            ]
-        )
-
-        eridani.characters.append(ralen)
-        avant_poste.characters.append(malek)
-        marche.characters.append(marchand)
-        marche.characters.append(yara)
-        entrepots.characters.append(nommera)
-        prison.characters.append(narek)
 
 
-
-        # Setup Items
+        
+        self.rooms["Eridani Prime"].characters.append(ralen)
+        self.rooms["Avant-poste minier"].characters.append(malek)
+        self.rooms["Marché labyrinthique"].characters.append(marchand)
+        self.rooms["Marché labyrinthique"].characters.append(yara)
+        self.rooms["Entrepôts civils"].characters.append(nommera)
+        
+    # Setup Items    
+    def setup_items(self):    
         battery = Item("Batterie énergétique usée", "Une batterie industrielle à moitié déchargée.", 2)
         shiv = Item("Dague improvisée", "Une lame artisanale forgée à partir de ferraille.", 1)
         keycard = Item("Carte d’accès rouillée", "Une vieille carte magnétique de sécurité.", 1)
         transmitter = Item("Émetteur rebelle crypté", "Un appareil de communication utilisé par la résistance.", 1)
 
-        avant_poste.inventory.append(battery)
-        marche.inventory.append(shiv)
-        entrepots.inventory.append(keycard)
-        base.inventory.append(transmitter)
+        self.rooms["Avant-poste minier"].inventory.append(battery)
+        self.rooms["Marché labyrinthique"].inventory.append(shiv)
+        self.rooms["Entrepôts civils"].inventory.append(keycard)
+        self.rooms["Base rebelle de Velyra"].inventory.append(transmitter)
+        
+    # Setup quests 
+    def _setup_quests(self):
+        """Initialize all quests."""
+        item_quest = Quest(
+            title="Accès restreint",
+            description="Récupérer une carte d’accès dans les entrepôts civils.",
+            objectives=["prendre Carte d’accès rouillée"],
+            reward="Accès aux zones sécurisées"
+            )
+
+        travel_quest = Quest(
+            title="Assaut de la prison centrale",
+            description="Atteindre la prison centrale et libérer Narek.",
+            objectives=["Visiter Prison centrale"],
+            reward="Plan de la forteresse"
+        )
+
+        talk_quest = Quest(
+            title="Alliance rebelle",
+            description="Parler au Chef rebelle pour coordonner l’attaque.",
+            objectives=["parler avec Yara"],
+            reward="Soutien de la résistance"
+        )
+        
+        
+
+
+        # Add quests to player's quest manager
+        self.player.quest_manager.add_quest(item_quest)
+        self.player.quest_manager.add_quest(travel_quest)
+        self.player.quest_manager.add_quest(talk_quest)
 
 
 
-        # Setup player and starting room
-        self.player = Player(input("\nEntrez votre nom: "))
-        self.player.current_room = eridani
+    # Setup the game
+    def setup(self):
+        # Setup commands
+        self.setup_commands()
+        # Setup rooms
+        self.setup_rooms()
+        # Setup Player
+        self.setup_player()
+        # Setup Characters
+        self.setup_characters()
+        # Setup items
+        self.setup_items()
+        # Setup quests
+        self._setup_quests()
+        
 
 
     # Play the game
     def play(self):
+        
         self.setup()
         self.print_welcome()
+        
         # Loop until the game is finished
         while not self.finished:
             # Get the command from the player
             self.process_command(input("> "))
-            # Déplacement des PNJ après chaque tour
-            for room in self.rooms:
-                for character in list(room.characters):
-                    character.move()
+            
+            # Check win/lose conditions
+            if self.win():
+                print("\n🎉 VOUS AVEZ GAGNÉ LA PARTIE 🎉\n")
+                self.finished = True
+            elif self.loose():
+                print("\n💀 Vous avez été capturé. Fin de partie.\n")
+                self.finished = True
+            else:
+                # Déplacement des PNJ après chaque tour
+                self.character_move()
+                    
         return None
-
+    
+    
+    def character_move(self):
+        for room in self.rooms.values():
+            for character in room.characters:
+                character.move()
 
     # Process the command entered by the player
     def process_command(self, command_string) -> None:
@@ -265,6 +315,30 @@ class Game:
         #
         print(self.player.current_room.get_long_description())
    
+    # Check if the player has won
+    def win(self):
+        for quest in self.player.quest_manager.get_all_quests():
+            if not quest.is_completed:
+                return False
+
+        print(
+            "\n🔓 Les portes de la prison cèdent.\n"
+            "Narek est libre.\n"
+            "La résistance peut enfin renverser le régime.\n"
+        )
+        return True
+
+    
+    # Check if the player has lost
+    def loose(self):
+        if self.player.current_room.name == "Prison centrale":
+            if not any(item.name == "Carte d’accès rouillée" for item in self.player.inventory):
+                print("\n🚨 ALERTE ! Vous êtes intercepté par les tourelles automatiques.")
+                print("Vous n'avez pas d'autorisation d'accès.\n")
+                return True
+        return False
+
+
 
 
 def main():

@@ -1,6 +1,10 @@
 class Item:
     """
     Représente un item manipulable par le joueur.
+    Attributes:
+        name (str): Le nom de l'item.
+        description (str): La description de l'item.
+        weight (float): Le poids de l'item en kilogrammes.
     """
 
     def __init__(self, name, description, weight):
