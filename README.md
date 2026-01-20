@@ -18,6 +18,8 @@
   ```bash
   python gui.py
   ```
+  Note : dans un environnement headless (ex. Codespaces), l'interface graphique ne peut pas s'ouvrir.
+  Utilisez alors `python gui.py --cli` pour rester en mode console.
   Le mode graphique affiche l’image de la salle et une console intégrée.
 
 ### Univers & progression
