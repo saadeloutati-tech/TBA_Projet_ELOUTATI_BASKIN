@@ -1,4 +1,4 @@
-# Vigilant — Text‑Based Adventure (Jeu B)
+# Vigilant — Text‑Based Adventure
 
 ## Guide utilisateur
 
